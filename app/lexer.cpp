@@ -1,10 +1,10 @@
 // ===================================================
-//Attached: Assignment 1
+// Attached: Assignment 1
 // ===================================================
-//Program: Lexical Analyzer
+// Program: Lexical Analyzer
 // ===================================================
-//Programmer: Ethan Nguyen, Brian Zee, Safe Gergis
-//Class: CPSC 323 - Compilers and Program Languages
+// Programmer: Ethan Nguyen, Brian Zee, Safe Gergis
+// Class: CPSC 323 - Compilers and Program Languages
 // ===================================================
 
 #include <iostream>
@@ -16,7 +16,7 @@
 
 using namespace std;
 
-struct Token 
+struct Token
 {
     string type;
     string lexeme;
@@ -26,141 +26,180 @@ unordered_set<string> keywords = {"while", "endwhile", "for", "function", "scan"
 unordered_set<string> operators = {"<=", "=", "<", ">", "+", "-", "*", "/"};
 unordered_set<char> separators = {'(', ')', ';', '[', ']', '{', '}'};
 
-
-bool fsmIdentifier(const string& str) 
+bool fsmIdentifier(const string &str)
 {
+    // FSM for Rat25s identifier: starts with a letter, followed by letters or digits
     int state = 0;
-    for (char ch : str) 
+    for (char ch : str)
     {
-        switch (state) 
+        switch (state)
         {
-            case 0:
-                if (isalpha(ch)) state = 1;
-                else return false;
-                break;
-            case 1:
-                if (isalnum(ch)) state = 1;
-                else return false;
-                break;
+        case 0: // Initial state
+            if (isalpha(ch))
+                state = 1; // First character must be a letter
+            else
+                return false;
+            break;
+        case 1: // Accept state - already saw a letter
+            if (isalpha(ch) || isdigit(ch) || ch == '_')
+                state = 1; // Can be followed by letters, digits, or underscores
+            else
+                return false;
+            break;
         }
     }
-    return state == 1;
+    return state == 1 && !str.empty(); // Valid if we end in accept state and string is not empty
 }
 
-bool fsmInteger(const string& str) 
+bool fsmInteger(const string &str)
 {
+    // FSM for Rat25s integer: one or more digits
     int state = 0;
-    for (char ch : str) 
+    for (char ch : str)
     {
-        switch (state) 
+        switch (state)
         {
-            case 0:
-                if (isdigit(ch)) state = 1;
-                else return false;
-                break;
-            case 1:
-                if (isdigit(ch)) state = 1;
-                else return false;
-                break;
+        case 0: // Initial state
+            if (isdigit(ch))
+                state = 1; // Transition to accept state on digit
+            else
+                return false; // Reject if not a digit
+            break;
+        case 1: // Accept state - already saw at least one digit
+            if (isdigit(ch))
+                state = 1; // Stay in accept state for more digits
+            else
+                return false; // Reject if not a digit
+            break;
         }
     }
-    return state == 1;
+    return state == 1 && !str.empty(); // Valid if we end in accept state and string is not empty
 }
 
-bool fsmReal(const string& str) 
+bool fsmReal(const string &str)
 {
+    // FSM for Rat25s real number: digits followed by a decimal point and more digits
     int state = 0;
-    for (char ch : str) 
+    for (char ch : str)
     {
-        switch (state) 
+        switch (state)
         {
-            case 0:
-                if (isdigit(ch)) state = 1;
-                else return false;
-                break;
-            case 1:
-                if (isdigit(ch)) state = 1;
-                else if (ch == '.') state = 2;
-                else return false;
-                break;
-            case 2:
-                if (isdigit(ch)) state = 3;
-                else return false;
-                break;
-            case 3:
-                if (isdigit(ch)) state = 3;
-                else return false;
-                break;
+        case 0: // Initial state
+            if (isdigit(ch))
+                state = 1; // First character must be a digit
+            else
+                return false;
+            break;
+        case 1: // Seen at least one digit before decimal point
+            if (isdigit(ch))
+                state = 1; // Continue accumulating digits
+            else if (ch == '.')
+                state = 2; // Found decimal point
+            else
+                return false;
+            break;
+        case 2: // Just seen decimal point
+            if (isdigit(ch))
+                state = 3; // Must have at least one digit after decimal
+            else
+                return false;
+            break;
+        case 3: // Accept state - seen digits after decimal point
+            if (isdigit(ch))
+                state = 3; // Continue accumulating fractional digits
+            else
+                return false;
+            break;
         }
     }
-    return state == 3;
+    return state == 3; // Valid if we end in accept state (digits after decimal point)
 }
 
-Token lexer(ifstream &file) 
+Token lexer(ifstream &file)
 {
-    char ch;
-    string lexeme;
-    Token token;
+    char ch;       // Current character being processed
+    string lexeme; // Current lexeme being built
+    Token token;   // Token to be returned
 
-    bool commenting = false;
+    bool commenting = false; // Flag to track if we're inside a comment block
 
-    while (file.get(ch)) 
+    while (file.get(ch)) // Read characters until end of file
     {
-        // Check for start of comment
-        if (ch == '[' && file.peek() == '*') {
+        // Check for start of comment block [*
+        if (ch == '[' && file.peek() == '*')
+        {
             commenting = true;
+            file.get(ch); // Consume the '*' character
         }
-        // Check for end of comment
-        else if (ch == '*' && file.peek() == ']') {
-            file.get(ch);
+        // Check for end of comment block *]
+        else if (ch == '*' && file.peek() == ']')
+        {
+            file.get(ch); // Consume the ']' character
             commenting = false;
-            continue;
+            continue; // Skip to next iteration
         }
 
-        if (isspace(ch) || commenting) continue;
-        
+        // Skip whitespace and commented sections
+        if (isspace(ch) || commenting)
+            continue;
 
-        lexeme = ch;
-        
-        if (separators.count(ch)) 
+        lexeme = ch; // Start building new lexeme with current character
+
+        // Check if character is a separator (e.g., '(', ')', ';', etc.)
+        if (separators.count(ch))
         {
             return {"Separator", lexeme};
         }
-        
-        if (operators.count(lexeme) || (ch == '<' || ch == '>' || ch == '=')) 
+
+        // Check for operators (e.g., '+', '-', '==', '<=', etc.)
+        if (operators.count(lexeme) || (ch == '<' || ch == '>' || ch == '='))
         {
-            file.get(ch);
+            file.get(ch); // Look ahead for possible double operators
             string doubleOp = lexeme + ch;
-            if (operators.count(doubleOp)) 
+            if (operators.count(doubleOp))
             {
-                return {"Operator", doubleOp};
-            } 
-            else 
-            {
-                file.unget();
+                return {"Operator", doubleOp}; // Return double operator (e.g., '<=')
             }
-            return {"Operator", lexeme};
+            else
+            {
+                file.unget(); // Put back character if not part of double operator
+            }
+            return {"Operator", lexeme}; // Return single operator
         }
-        
-        if (isalpha(ch)) 
+
+        // Process identifiers and keywords (starting with a letter)
+        if (isalpha(ch))
         {
-            while (file.get(ch) && isalnum(ch)) 
+            // Continue reading alphanumeric characters
+            while (file.get(ch) && isalnum(ch))
             {
                 lexeme += ch;
             }
-            file.unget();
-            return {keywords.count(lexeme) ? "Keyword" : "Identifier", lexeme};
+            file.unget(); // Put back the last character that's not part of the lexeme
+
+            // Check if lexeme is a keyword or identifier
+            if (keywords.count(lexeme))
+                return {"Keyword", lexeme};
+            else if (fsmIdentifier(lexeme))
+                return {"Identifier", lexeme};
         }
-        else if (isdigit(ch)) 
+        // Process numbers (integers and reals)
+        else if (isdigit(ch))
         {
-            while (file.get(ch) && (isdigit(ch) || ch == '.')) 
+            // Continue reading digits and possibly a decimal point
+            while (file.get(ch) && (isdigit(ch) || ch == '.'))
             {
                 lexeme += ch;
             }
-            file.unget();
-            if (fsmReal(lexeme)) return {"Real", lexeme};
-            if (fsmInteger(lexeme)) return {"Integer", lexeme};
+            file.unget(); // Put back the last character that's not part of the number
+
+            // Check if lexeme is a real number or integer
+            if (fsmReal(lexeme))
+                return {"Real", lexeme};
+            if (fsmInteger(lexeme))
+                return {"Integer", lexeme};
         }
     }
+    // Return EOF token when file is completely read
     return {"EOF", ""};
 }
