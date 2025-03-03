@@ -1,3 +1,12 @@
+// ===================================================
+// Attached: Assignment 1
+// ===================================================
+// Program: Lexical Analyzer
+// ===================================================
+// Programmer: Ethan Nguyen (13801), Brian Zee (13814), Safe Gergis (13814)
+// Class: CPSC 323 - Compilers and Program Languages
+// ===================================================
+
 #include <iostream>
 #include <fstream>
 #include <vector>
