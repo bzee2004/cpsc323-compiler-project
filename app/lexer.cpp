@@ -23,8 +23,9 @@ struct Token
 };
 
 unordered_set<string> keywords = {"while", "endwhile", "for", "function", "scan", "integer", "array", "print"};
-unordered_set<string> operators = {"<=", "=", "<", ">", "+", "-", "*", "/"};
-unordered_set<char> separators = {'(', ')', ';', '[', ']', '{', '}'};
+unordered_set<string> operators = {"<=", "=", ">", "!=", "==", "<", ">", "+", "-", "*", "/"};
+// unordered_set<char> separators = {'(', ')', ';', '[', ']', '{', '}'};
+unordered_set<string> separators = {"(", ")", ";", "[", "]", "{", "}", "$$"};
 
 bool fsmIdentifier(const string &str)
 {
@@ -146,8 +147,17 @@ Token lexer(ifstream &file)
         lexeme = ch; // Start building new lexeme with current character
 
         // Check if character is a separator (e.g., '(', ')', ';', etc.)
-        if (separators.count(ch))
+        if (separators.count(lexeme) || ch == '$')
         {
+            if (ch == '$' && file.peek() == '$')          // See if separator is '$$'
+            {
+                file.get(ch);
+                lexeme += ch;
+            } 
+            else if (ch == '$' && file.peek() != ' ')    // If separator is not '$$' 
+            { 
+                return {"Unknown", lexeme};
+            }
             return {"Separator", lexeme};
         }
 

@@ -2,6 +2,7 @@
 non-decreasing order sorted array that 
 add up to a specific target number*]
 
+$$
 array twoSum = function(numbers array, target integer) {
 
     integer index1 = 0;
@@ -20,8 +21,10 @@ array twoSum = function(numbers array, target integer) {
     }
     return [];
 };
+$$
 
+$$
 array numbers = [2, 7, 11, 15];
 integer target = 9
-
 array result = twoSum(numbers, target);
+$$
