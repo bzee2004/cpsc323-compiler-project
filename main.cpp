@@ -12,7 +12,7 @@
 #include <vector>
 #include <filesystem>
 
-#include "lexer.cpp"
+#include "./app/lexer.cpp"
 
 using namespace std;
 
@@ -25,8 +25,8 @@ int main()
     };
 
     for (string oFile : testArr) {
-        ifstream sourceFile("Test Cases/" + oFile);
-        ofstream outputFile("Test Cases/" + oFile + ".txt");
+        ifstream sourceFile("test case/" + oFile);
+        ofstream outputFile("test case/" + oFile + ".txt");
 
         if (!sourceFile) 
         {

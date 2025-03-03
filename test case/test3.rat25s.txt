@@ -1,5 +1,6 @@
 Token	Lexeme
 -------------------
+Separator      $$
 Keyword        array
 Identifier     twoSum
 Operator       =
@@ -93,6 +94,8 @@ Separator      ]
 Separator      ;
 Separator      }
 Separator      ;
+Separator      $$
+Separator      $$
 Keyword        array
 Identifier     numbers
 Operator       =
@@ -116,3 +119,4 @@ Identifier     numbers
 Identifier     target
 Separator      )
 Separator      ;
+Separator      $$
