@@ -12,7 +12,7 @@
 #include <vector>
 #include <filesystem>
 
-#include "./app/lexer.cpp"
+#include "./app/lexical_analyzer/lexer.h"
 
 using namespace std;
 

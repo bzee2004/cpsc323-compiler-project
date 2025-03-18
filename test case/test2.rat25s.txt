@@ -7,7 +7,7 @@ Identifier     fahr
 Keyword        integer
 Separator      )
 Separator      {
-Identifier     return
+Keyword        return
 Integer        5
 Operator       *
 Separator      (
@@ -21,13 +21,17 @@ Separator      ;
 Separator      }
 Keyword        integer
 Identifier     low
+Separator      ,
 Identifier     high
+Separator      ,
 Identifier     step
 Separator      ;
 Keyword        scan
 Separator      (
 Identifier     low
+Separator      ,
 Identifier     high
+Separator      ,
 Identifier     step
 Separator      )
 Separator      ;
