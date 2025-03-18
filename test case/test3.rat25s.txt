@@ -8,6 +8,7 @@ Keyword        function
 Separator      (
 Identifier     numbers
 Keyword        array
+Unknown        ,
 Identifier     target
 Keyword        integer
 Separator      )
@@ -21,6 +22,7 @@ Keyword        integer
 Identifier     index2
 Operator       =
 Identifier     numbers
+Unknown        .
 Identifier     length
 Operator       -
 Integer        1
@@ -30,6 +32,7 @@ Separator      (
 Identifier     index1
 Operator       <
 Identifier     numbers
+Unknown        .
 Identifier     length
 Separator      )
 Separator      {
@@ -81,6 +84,7 @@ Separator      [
 Operator       +
 Operator       +
 Identifier     index1
+Unknown        ,
 Operator       +
 Operator       +
 Identifier     index2
@@ -101,8 +105,11 @@ Identifier     numbers
 Operator       =
 Separator      [
 Integer        2
+Unknown        ,
 Integer        7
+Unknown        ,
 Integer        11
+Unknown        ,
 Integer        15
 Separator      ]
 Separator      ;
@@ -116,6 +123,7 @@ Operator       =
 Identifier     twoSum
 Separator      (
 Identifier     numbers
+Unknown        ,
 Identifier     target
 Separator      )
 Separator      ;

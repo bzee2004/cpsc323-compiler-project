@@ -35,7 +35,7 @@ bool fsmIdentifier(const string &str)
     {
         switch (state)
         {
-        case 0: // Initial state
+        case 0: // Initial states
             if (isalpha(ch))
                 state = 1; // First character must be a letter
             else
@@ -181,7 +181,7 @@ Token lexer(ifstream &file)
         if (isalpha(ch))
         {
             // Continue reading alphanumeric characters
-            while (file.get(ch) && isalnum(ch))
+            while (file.get(ch) && (isalnum(ch) || ch == '_'))
             {
                 lexeme += ch;
             }
@@ -208,6 +208,11 @@ Token lexer(ifstream &file)
                 return {"Real", lexeme};
             if (fsmInteger(lexeme))
                 return {"Integer", lexeme};
+        }
+
+        // Token is unknown
+        else {
+            return {"Unknown", lexeme};
         }
     }
     // Return EOF token when file is completely read
