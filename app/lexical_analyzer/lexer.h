@@ -22,98 +22,89 @@ struct Token
     string lexeme;
 };
 
-unordered_set<string> keywords = {"while", "endwhile", "for", "function", "scan", "integer", "array", "print"};
-unordered_set<string> operators = {"<=", "=", ">", "!=", "==", "<", ">", "+", "-", "*", "/"};
-// unordered_set<char> separators = {'(', ')', ';', '[', ']', '{', '}'};
-unordered_set<string> separators = {"(", ")", ";", "[", "]", "{", "}", "$$"};
+unordered_set<string> keywords = {
+                                "while", "endwhile", "for",
+                                "scan", "print",
+                                "integer", "boolean", "real", "array", "function",
+                                "if", "endif", "else", 
+                                "return"
+                                };
+unordered_set<string> operators = {"<", ">", "<=", "==", ">=", "!=", "=", "+", "++", "-", "--", "*", "/", "%"};
+unordered_set<string> separators = {",", "(", ")", ";", "[", "]", "{", "}", "$$"};
 
 bool fsmIdentifier(const string &str)
 {
+    vector<vector<int>> table = {
+    //  {l, d, _}
+        {1, 5, 5},      // state 0 start
+        {2, 3, 4},      // state 1 accept
+        {2, 3, 4},      // state 2 accept
+        {2, 3, 4},      // state 3 accept
+        {2, 3, 4},      // state 4 accept
+        {5, 5, 5}       // state 5
+    };
+
+    unordered_set<int> F = {1, 2, 3, 4};
+
     // FSM for Rat25s identifier: starts with a letter, followed by letters or digits
     int state = 0;
+    int col = 0;
     for (char ch : str)
     {
-        switch (state)
-        {
-        case 0: // Initial states
-            if (isalpha(ch))
-                state = 1; // First character must be a letter
-            else
-                return false;
-            break;
-        case 1: // Accept state - already saw a letter
-            if (isalpha(ch) || isdigit(ch) || ch == '_')
-                state = 1; // Can be followed by letters, digits, or underscores
-            else
-                return false;
-            break;
-        }
+        if (isalpha(ch)) { col = 0; }
+        else if (isdigit(ch)) { col = 1; }
+        else if (ch == '_') { col = 2; }
+
+        state = table[state][col];
     }
-    return state == 1 && !str.empty(); // Valid if we end in accept state and string is not empty
+    return F.count(state) > 0; // Valid if we end in accept state
 }
 
 bool fsmInteger(const string &str)
 {
+    vector<vector<int>> table = {   // state table
+        {0, 1},  // state 1 start
+        {1, 1}   // state 2 accept
+    };
+
+    unordered_set<int> F = {1};     // accepting state(s)
+
     // FSM for Rat25s integer: one or more digits
     int state = 0;
+    int col = 0;
+
     for (char ch : str)
     {
-        switch (state)
-        {
-        case 0: // Initial state
-            if (isdigit(ch))
-                state = 1; // Transition to accept state on digit
-            else
-                return false; // Reject if not a digit
-            break;
-        case 1: // Accept state - already saw at least one digit
-            if (isdigit(ch))
-                state = 1; // Stay in accept state for more digits
-            else
-                return false; // Reject if not a digit
-            break;
-        }
+        col = isdigit(ch) ? 1 : 0;    // if digit, column to search is 1, else is 0
+        state = table[state][col];
     }
-    return state == 1 && !str.empty(); // Valid if we end in accept state and string is not empty
+    return F.count(state) > 0; // Valid if we end in accept state
 }
 
 bool fsmReal(const string &str)
 {
+    vector<vector<int>> table = {
+    //  {d, .}
+        {1, 4},     // state 0 start
+        {1, 2},     // state 1
+        {3, 4},     // state 2
+        {3, 4},     // state 3 accept
+        {4, 4}      // state 4
+    };
+
+    unordered_set<int> F = {3};
+
     // FSM for Rat25s real number: digits followed by a decimal point and more digits
     int state = 0;
+    int col = 0;
     for (char ch : str)
     {
-        switch (state)
-        {
-        case 0: // Initial state
-            if (isdigit(ch))
-                state = 1; // First character must be a digit
-            else
-                return false;
-            break;
-        case 1: // Seen at least one digit before decimal point
-            if (isdigit(ch))
-                state = 1; // Continue accumulating digits
-            else if (ch == '.')
-                state = 2; // Found decimal point
-            else
-                return false;
-            break;
-        case 2: // Just seen decimal point
-            if (isdigit(ch))
-                state = 3; // Must have at least one digit after decimal
-            else
-                return false;
-            break;
-        case 3: // Accept state - seen digits after decimal point
-            if (isdigit(ch))
-                state = 3; // Continue accumulating fractional digits
-            else
-                return false;
-            break;
-        }
+        if (isdigit(ch)) { col = 0; }
+        else if (ch == '.') { col = 1; }
+
+        state = table[state][col];
     }
-    return state == 3; // Valid if we end in accept state (digits after decimal point)
+    return F.count(state) > 0; // Valid if we end in accept state (digits after decimal point)
 }
 
 Token lexer(ifstream &file)
@@ -162,10 +153,11 @@ Token lexer(ifstream &file)
         }
 
         // Check for operators (e.g., '+', '-', '==', '<=', etc.)
-        if (operators.count(lexeme) || (ch == '<' || ch == '>' || ch == '='))
+        if (operators.count(lexeme) || (ch == '<' || ch == '>' || ch == '=' || ch == '!'))
         {
             file.get(ch); // Look ahead for possible double operators
             string doubleOp = lexeme + ch;
+
             if (operators.count(doubleOp))
             {
                 return {"Operator", doubleOp}; // Return double operator (e.g., '<=')
@@ -210,8 +202,20 @@ Token lexer(ifstream &file)
                 return {"Integer", lexeme};
         }
 
-        // Token is unknown
+        // Process unknown strings
         else {
+            while (file.get(ch)) {
+                if (ch == ' ') { break; }
+
+                lexeme += ch;
+                
+                // If char is separator or operator, don't add to lexeme
+                if (ch == ';' || operators.count(lexeme) || (ch == '<' || ch == '>' || ch == '=' || ch == '!')) {
+                    file.unget();
+                    lexeme = lexeme.substr(0, lexeme.size()-1);
+                    break;
+                }
+            }
             return {"Unknown", lexeme};
         }
     }

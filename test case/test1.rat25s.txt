@@ -14,8 +14,7 @@ Keyword        endwhile
 Keyword        print
 Separator      (
 Integer        1
-Unknown        !
-Operator       =
+Operator       !=
 Integer        2
 Separator      )
 Separator      ;
@@ -23,6 +22,7 @@ Identifier     test_identifier
 Operator       =
 Integer        12
 Separator      ;
-Unknown        _
-Integer        132
+Unknown        _13#_d2
+Operator       >=
+Integer        3
 Separator      ;

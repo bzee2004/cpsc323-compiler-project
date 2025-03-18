@@ -1,4 +1,4 @@
 while (fahr <= upper) a = 23.00; endwhile [* this is a sample *]
 print(1 != 2);
 test_identifier = 12;
-_132;
+_13#_d2>=3; [* string before operator should be unknown *]
