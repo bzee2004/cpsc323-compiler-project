@@ -1,0 +1,29 @@
+$$ [* Function declarations *]
+function computeSum(a integer, b integer) {
+    result = a + b;
+    return result;
+} 
+function multiply(a integer, b integer) {
+    product = a * b;
+    return product;
+} 
+
+function isPositive(num integer) {
+    if (num > 0) {
+        return true;
+    }
+    else {
+        return false
+    }; 
+    endif
+} 
+$$ [* Identifier declarations *]
+integer result, product;
+integer x, y;
+$$
+x = 10;
+y = 5;
+print(computeSum(x, y));
+print(multiply(x, y));
+print(isPositive(y));
+$$

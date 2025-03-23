@@ -1,0 +1,9 @@
+$$
+
+$$
+integer test_identifier;
+real d_13d_d2;
+$$
+while (fahr <= upper) a = 23.00; endwhile [* this is a sample *]
+d_13d_d2=> 3.2; [* string before operator should be unknown *]
+$$
