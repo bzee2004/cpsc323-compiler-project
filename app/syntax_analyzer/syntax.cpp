@@ -12,8 +12,9 @@ Token peek()
     {
         return tokens[currentTokenIndex];
     }
+    Token::line = -1;
     return 
-    {"EOF", "", -1};
+    {"EOF", ""};
 }
 
 Token getNextToken() 
@@ -22,15 +23,16 @@ Token getNextToken()
     {
         return tokens[currentTokenIndex++];
     }
+    Token::line = -1;
     return 
-    {"EOF", "", -1};
+    {"EOF", ""};
 }
 
 void match(string expectedType) 
 {
     Token token = peek();
 
-    outputFile << "Token: " << token.type << " Lexeme: " << token.lexeme << endl;
+    outputFile << "Token: " << token.type << "\t Lexeme: " << token.lexeme << endl;
 
     if (token.type == expectedType) 
     {
@@ -45,8 +47,8 @@ void match(string expectedType)
 void error(string message) 
 {
     Token token = peek();
-    cerr << "Syntax Error: " << message << " at line " << token.line << endl;
-    outputFile << "Syntax Error: " << message << " at line " << token.line << endl;
+    cerr << "Syntax Error: " << message << " at line " << Token::line << endl;
+    outputFile << "Syntax Error: " << message << " at line " << Token::line << endl;
     exit(1);
 }
 

@@ -16,6 +16,8 @@
 
 using namespace std;
 
+int Token::line;
+
 int main() 
 {
     vector<string> testArr = {
@@ -28,6 +30,8 @@ int main()
         ifstream sourceFile("testcases/" + oFile);
         ofstream outputFileLexer("testcases/lexer_results/" + oFile + "-lexer.txt");
 
+        Token::line = 1;
+
         if (!sourceFile) 
         {
             cerr << "Error: Cannot open input file." << endl;
@@ -38,13 +42,14 @@ int main()
 
         vector<Token> tokens;
         Token token;
-        while ((token = lexer(sourceFile)).type != "EOF") 
+
+        while ((token = lexer(sourceFile, &token)).type != "EOF") 
         {
             tokens.push_back(token);
-            // cout << token.type << "\t" << token.lexeme << endl;
+            cout << setw(15) << left << token.type << setw(15) << left << token.lexeme << "\t" << Token::line << endl;
             outputFileLexer << setw(15) << left << token.type << token.lexeme << endl;
         }
-        tokens.push_back({"EOF", "", -1});
+        tokens.push_back({"EOF", ""});
 
         sourceFile.close();
         outputFile.close();

@@ -9,9 +9,10 @@
 struct Token {
     std::string type;
     std::string lexeme;
-    int line;
+    static int line;
 };
 
-Token lexer(std::ifstream &file);
+
+Token lexer(std::ifstream &file, Token* token);
 
 #endif

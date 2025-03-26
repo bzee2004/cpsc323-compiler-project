@@ -14,7 +14,7 @@
 using namespace std;
 
 unordered_set<string> keywords = {
-                                "while", "endwhile", "for",
+                                "while", "endwhile",
                                 "scan", "print",
                                 "integer", "boolean", "real", "array", "function",
                                 "if", "endif", "else", 
@@ -99,17 +99,17 @@ bool fsmReal(const string &str)
     return F.count(state) > 0; // Valid if we end in accept state (digits after decimal point)
 }
 
-Token lexer(ifstream &file)
+Token lexer(ifstream &file, Token* token)
 {
     char ch;       // Current character being processed
     string lexeme; // Current lexeme being built
-    Token token;   // Token to be returned
+    // Token token;   // Token to be returned
     bool commenting = false; // Flag to track if we're inside a comment block
-    int lineNumber = 1;
+    // int lineNumber = 1;
 
     while (file.get(ch)) // Read characters until end of file
     {
-        if (ch == '\n') lineNumber++;
+        if (ch == '\n') Token::line++;
 
         // Check for start of comment block [*
         if (ch == '[' && file.peek() == '*')
@@ -139,7 +139,7 @@ Token lexer(ifstream &file)
                 file.get(ch);
                 lexeme += ch;
             } 
-            return {"Separator", lexeme, lineNumber};
+            return {"Separator", lexeme};
         }
 
         // Check for operators (e.g., '+', '-', '==', '<=', etc.)
@@ -150,13 +150,13 @@ Token lexer(ifstream &file)
 
             if (operators.count(doubleOp))
             {
-                return {"Operator", doubleOp, lineNumber}; // Return double operator (e.g., '<=')
+                return {"Operator", doubleOp}; // Return double operator (e.g., '<=')
             }
             else
             {
                 file.unget(); // Put back character if not part of double operator
             }
-            return {"Operator", lexeme, lineNumber}; // Return single operator
+            return {"Operator", lexeme}; // Return single operator
         }
 
         // Process identifiers and keywords (starting with a letter)
@@ -171,9 +171,9 @@ Token lexer(ifstream &file)
 
             // Check if lexeme is a keyword or identifier
             if (keywords.count(lexeme))
-                return {"Keyword", lexeme, lineNumber};
+                return {"Keyword", lexeme};
             else if (fsmIdentifier(lexeme))
-                return {"Identifier", lexeme, lineNumber};
+                return {"Identifier", lexeme};
         }
         // Process numbers (integers and reals)
         else if (isdigit(ch))
@@ -187,9 +187,9 @@ Token lexer(ifstream &file)
 
             // Check if lexeme is a real number or integer
             if (fsmReal(lexeme))
-                return {"Real", lexeme, lineNumber};
+                return {"Real", lexeme};
             if (fsmInteger(lexeme))
-                return {"Integer", lexeme, lineNumber};
+                return {"Integer", lexeme};
         }
 
         // Process unknown strings
@@ -206,9 +206,9 @@ Token lexer(ifstream &file)
                     break;
                 }
             }
-            return {"Unknown", lexeme, lineNumber};
+            return {"Unknown", lexeme};
         }
     }
-    // Return EOF token when file is completely read
-    return {"EOF", "", lineNumber};
+    // Return EOF token when file is completely read'
+    return {"EOF", ""};
 }
